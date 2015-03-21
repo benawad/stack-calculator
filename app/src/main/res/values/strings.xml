@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Stack Calculator</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9556675318875252/1825394526</string>
+
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="TypographyDashes">
+
+    <string name="ga_logLevel">verbose</string>
+
+    <integer name="ga_dispatchPeriod">30</integer>
+
+    <string name="ga_trackingId">UA-56096342-3</string>
+
+    <screenName name="benawad.com.stackcalculator.MainActivity">MainActivity</screenName>
+</resources>
