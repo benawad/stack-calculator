@@ -3,6 +3,7 @@ package benawad.com.stackcalculator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,9 +45,10 @@ public class MainActivity extends ActionBarActivity {
     public static BigDecimal mSmallestNumber;
     public CheckBox dontShowAgain;
     Stack<BigDecimal> mStack;
-    ListView mNumListView;
     TextView mNumView;
-    StackAdapter mStackAdapter;
+    TextView mNumView2;
+    TextView mNumView3;
+    TextView mNumView4;
     boolean mPopReady = true;
     boolean mNewNum;
     AdView mAdView;
@@ -71,6 +72,7 @@ public class MainActivity extends ActionBarActivity {
     Button mClear;
     Button mDot;
     LinearLayout mRows;
+    boolean mLandscape;
     private SharedPreferences prefs;
 
     public static String toSizeString(BigDecimal decimal) {
@@ -108,18 +110,18 @@ public class MainActivity extends ActionBarActivity {
         mSquare = (Button) findViewById(R.id.square);
         mSquareA = (Button) findViewById(R.id.square_a);
 
-        mNumListView = (ListView) findViewById(R.id.number_listview);
+        mLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+
         mNumView = (TextView) findViewById(R.id.number_view);
+        if (!mLandscape) {
+            mNumView2 = (TextView) findViewById(R.id.number_view2);
+            mNumView3 = (TextView) findViewById(R.id.number_view3);
+            mNumView4 = (TextView) findViewById(R.id.number_view4);
+        }
 
         if (mStack == null) {
             mStack = new Stack<>();
         }
-        mStack.push(BigDecimal.ZERO);
-        mStack.push(BigDecimal.ZERO);
-        mStack.push(BigDecimal.ZERO);
-
-        mStackAdapter = new StackAdapter(this, mStack);
-        mNumListView.setAdapter(mStackAdapter);
 
         mSquare.setText(Html.fromHtml("X<sup>2</sup>"));
         mSquareA.setText(Html.fromHtml("X<sup>a</sup>"));
@@ -272,7 +274,8 @@ public class MainActivity extends ActionBarActivity {
         mNumView.setText(savedInstanceState.getString("numview"));
         mNewNum = savedInstanceState.getBoolean("newnum", mNewNum);
         mPopReady = savedInstanceState.getBoolean("popready", mPopReady);
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void numberClick(View view) {
@@ -320,7 +323,8 @@ public class MainActivity extends ActionBarActivity {
             mPopReady = false;
             mStack.push(new BigDecimal(current));
             Log.v(TAG, "EndEnter=" + mStack.toString());
-            mStackAdapter.notifyDataSetChanged();
+            // mStackAdapter.notifyDataSetChanged();
+            updateNumView();
         }
     }
 
@@ -349,7 +353,8 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void minus(View view) {
@@ -378,7 +383,8 @@ public class MainActivity extends ActionBarActivity {
             mNewNum = true;
         }
         Log.v(TAG, "EndMinus=" + mStack.toString());
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void divide(View view) {
@@ -426,7 +432,8 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-        mStackAdapter.notifyDataSetChanged();
+        // mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void multiply(View view) {
@@ -453,15 +460,14 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void clear(View view) {
         mStack.clear();
-        mStack.push(BigDecimal.ZERO);
-        mStack.push(BigDecimal.ZERO);
-        mStack.push(BigDecimal.ZERO);
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
         mPopReady = true;
         mNewNum = false;
         mNumView.setText("0");
@@ -491,7 +497,8 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-        mStackAdapter.notifyDataSetChanged();
+        //mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public void squareA(View view) {
@@ -524,7 +531,8 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-        mStackAdapter.notifyDataSetChanged();
+        // mStackAdapter.notifyDataSetChanged();
+        updateNumView();
     }
 
     public String toSizeString(int num) {
@@ -561,6 +569,26 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
+    }
+
+    public void updateNumView() {
+        if (!mLandscape) {
+            try {
+                mNumView2.setText(toSizeString(mStack.get(mStack.size() - 1)));
+            } catch (Exception e) {
+                mNumView2.setText("0");
+            }
+            try {
+                mNumView3.setText(toSizeString(mStack.get(mStack.size() - 2)));
+            } catch (Exception e) {
+                mNumView3.setText("0");
+            }
+            try {
+                mNumView4.setText(toSizeString(mStack.get(mStack.size() - 3)));
+            } catch (Exception e) {
+                mNumView4.setText("0");
+            }
+        }
     }
 
     @Override
