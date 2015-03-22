@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,13 +41,15 @@ public class MainActivity extends ActionBarActivity {
     public static final String LARGEST_NUMBER = "99999999999999999999";
     public static final String SMALLEST_NUMBER = "-99999999999999999999";
     public static final String PREFS_NAME = "MyPrefsFile1";
+    public static BigDecimal mLargestNumber;
+    public static BigDecimal mSmallestNumber;
     public CheckBox dontShowAgain;
-    TextView mNumView;
     Stack<BigDecimal> mStack;
+    ListView mNumListView;
+    TextView mNumView;
+    StackAdapter mStackAdapter;
     boolean mPopReady = true;
     boolean mNewNum;
-    BigDecimal mLargestNumber;
-    BigDecimal mSmallestNumber;
     AdView mAdView;
     Button _0;
     Button _1;
@@ -70,22 +73,53 @@ public class MainActivity extends ActionBarActivity {
     LinearLayout mRows;
     private SharedPreferences prefs;
 
+    public static String toSizeString(BigDecimal decimal) {
+
+        mLargestNumber = new BigDecimal(LARGEST_NUMBER);
+        mSmallestNumber = new BigDecimal(SMALLEST_NUMBER);
+
+        if (decimal.compareTo(mLargestNumber) > 0 || decimal.compareTo(mSmallestNumber) < 0) {
+            throw new ArithmeticException("Went over max digits allowed (" + MAX_DIGITS_ALLOWED + ")");
+        }
+
+        String sDecimal = decimal.stripTrailingZeros().toPlainString();
+        int length = sDecimal.length();
+        if (sDecimal.contains(".")) {
+            length--;
+        }
+        if (sDecimal.contains("-")) {
+            length--;
+        }
+        if (length > MAX_DIGITS_ALLOWED) {
+            int loc = sDecimal.indexOf(".");
+            int scale = MAX_DIGITS_ALLOWED - (loc - 1);
+            if (scale > 0) {
+                sDecimal = decimal.setScale(scale, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+            }
+        }
+        return sDecimal;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mLargestNumber = new BigDecimal(LARGEST_NUMBER);
-        mSmallestNumber = new BigDecimal(SMALLEST_NUMBER);
-
         mSquare = (Button) findViewById(R.id.square);
         mSquareA = (Button) findViewById(R.id.square_a);
 
+        mNumListView = (ListView) findViewById(R.id.number_listview);
         mNumView = (TextView) findViewById(R.id.number_view);
 
         if (mStack == null) {
             mStack = new Stack<>();
         }
+        mStack.push(BigDecimal.ZERO);
+        mStack.push(BigDecimal.ZERO);
+        mStack.push(BigDecimal.ZERO);
+
+        mStackAdapter = new StackAdapter(this, mStack);
+        mNumListView.setAdapter(mStackAdapter);
 
         mSquare.setText(Html.fromHtml("X<sup>2</sup>"));
         mSquareA.setText(Html.fromHtml("X<sup>a</sup>"));
@@ -208,16 +242,6 @@ public class MainActivity extends ActionBarActivity {
         savedInstanceState.putBoolean("popready", mPopReady);
     }
 
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        // Restore state from savedInstanceState
-        mStack = (Stack<BigDecimal>) savedInstanceState.getSerializable("stack");
-        mNumView.setText(savedInstanceState.getString("numview"));
-        mNewNum = savedInstanceState.getBoolean("newnum", mNewNum);
-        mPopReady = savedInstanceState.getBoolean("popready", mPopReady);
-    }
-
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //        // Inflate the menu; this adds items to the action bar if it is present.
@@ -239,6 +263,17 @@ public class MainActivity extends ActionBarActivity {
 //
 //        return super.onOptionsItemSelected(item);
 //    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore state from savedInstanceState
+        mStack.addAll((Stack<BigDecimal>) savedInstanceState.getSerializable("stack"));
+        mNumView.setText(savedInstanceState.getString("numview"));
+        mNewNum = savedInstanceState.getBoolean("newnum", mNewNum);
+        mPopReady = savedInstanceState.getBoolean("popready", mPopReady);
+        mStackAdapter.notifyDataSetChanged();
+    }
 
     public void numberClick(View view) {
         Button buttonNum = (Button) view;
@@ -285,6 +320,7 @@ public class MainActivity extends ActionBarActivity {
             mPopReady = false;
             mStack.push(new BigDecimal(current));
             Log.v(TAG, "EndEnter=" + mStack.toString());
+            mStackAdapter.notifyDataSetChanged();
         }
     }
 
@@ -313,6 +349,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public void minus(View view) {
@@ -341,6 +378,7 @@ public class MainActivity extends ActionBarActivity {
             mNewNum = true;
         }
         Log.v(TAG, "EndMinus=" + mStack.toString());
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public void divide(View view) {
@@ -388,6 +426,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public void multiply(View view) {
@@ -414,10 +453,15 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public void clear(View view) {
         mStack.clear();
+        mStack.push(BigDecimal.ZERO);
+        mStack.push(BigDecimal.ZERO);
+        mStack.push(BigDecimal.ZERO);
+        mStackAdapter.notifyDataSetChanged();
         mPopReady = true;
         mNewNum = false;
         mNumView.setText("0");
@@ -447,7 +491,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public void squareA(View view) {
@@ -480,30 +524,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mNewNum = true;
         }
-    }
-
-    public String toSizeString(BigDecimal decimal) {
-
-        if (decimal.compareTo(mLargestNumber) > 0 || decimal.compareTo(mSmallestNumber) < 0) {
-            throw new ArithmeticException("Went over max digits allowed (" + MAX_DIGITS_ALLOWED + ")");
-        }
-
-        String sDecimal = decimal.stripTrailingZeros().toPlainString();
-        int length = sDecimal.length();
-        if (sDecimal.contains(".")) {
-            length--;
-        }
-        if (sDecimal.contains("-")) {
-            length--;
-        }
-        if (length > MAX_DIGITS_ALLOWED) {
-            int loc = sDecimal.indexOf(".");
-            int scale = MAX_DIGITS_ALLOWED - (loc - 1);
-            if (scale > 0) {
-                sDecimal = decimal.setScale(scale, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
-            }
-        }
-        return sDecimal;
+        mStackAdapter.notifyDataSetChanged();
     }
 
     public String toSizeString(int num) {
