@@ -23,8 +23,8 @@ android {
         applicationId "benawad.com.stackcalculator"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 2
-        versionName "1.01"
+        versionCode 3
+        versionName "1.02"
     }
     buildTypes {
         release {
