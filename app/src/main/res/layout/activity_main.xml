@@ -8,7 +8,7 @@
     <benawad.com.stackcalculator.views.FontFitTextView
         android:id="@+id/number_view4"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/numview_height_portrait"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="#424242"
         android:gravity="right"
@@ -28,7 +28,7 @@
     <benawad.com.stackcalculator.views.FontFitTextView
         android:id="@+id/number_view3"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/numview_height_portrait"
+        android:layout_height="wrap_content"
         android:layout_below="@id/line4"
         android:background="#424242"
         android:gravity="right"
@@ -48,7 +48,7 @@
     <benawad.com.stackcalculator.views.FontFitTextView
         android:id="@+id/number_view2"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/numview_height_portrait"
+        android:layout_height="wrap_content"
         android:layout_below="@id/line3"
         android:background="#424242"
         android:gravity="right"
@@ -68,7 +68,7 @@
     <benawad.com.stackcalculator.views.FontFitTextView
         android:id="@+id/number_view"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/numview_height_portrait"
+        android:layout_height="wrap_content"
         android:layout_below="@id/line2"
         android:background="#424242"
         android:clickable="true"
@@ -76,12 +76,10 @@
         android:focusableInTouchMode="true"
         android:gravity="right"
         android:onClick="toggleSign"
-        android:paddingBottom="@dimen/numview_space"
         android:singleLine="true"
         android:text="0"
         android:textColor="#fff"
         android:textIsSelectable="false"
-        android:textSize="30sp"
         android:textStyle="bold"/>
 
     <com.google.android.gms.ads.AdView
