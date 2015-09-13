@@ -1,17 +1,12 @@
 package benawad.com.stackcalculator;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -27,7 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Stack;
 
-import benawad.com.stackcalculator.views.CustomColorDialogBuilder;
+import benawad.com.stackcalculator.customViews.MyDialog;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -190,44 +185,54 @@ public class MainActivity extends ActionBarActivity {
         boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
 
         if (isFirstRun) {
-
-            String tomatoColor = "#a34b1b";
-            CustomColorDialogBuilder customColorDialogBuilder = new CustomColorDialogBuilder(this)
-                    .setTitleColor(tomatoColor)
-                    .setDividerColor(tomatoColor)
-                    .setCustomView(R.layout.checkbox, this);
-
-            LayoutInflater adbInflater = LayoutInflater.from(this);
-            View eulaLayout = adbInflater.inflate(R.layout.checkbox, null);
-            dontShowAgain = (CheckBox) eulaLayout.findViewById(R.id.skip);
-            customColorDialogBuilder.setTitle("Attention");
-            customColorDialogBuilder.setMessage(Html.fromHtml("Tap the number at the top to switch it's sign from negative to positive or vice versa."));
-            customColorDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    String checkBoxResult = "NOT checked";
-                    if (dontShowAgain.isChecked())
-                        checkBoxResult = "checked";
-                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("skipMessage", checkBoxResult);
-                    editor.apply();
-                }
-            });
-
-            AlertDialog alert = customColorDialogBuilder.create();
-            //alert.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            alert.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog);
-
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             String skipMessage = settings.getString("skipMessage", "NOT checked");
             if (!skipMessage.equals("checked")) {
-                alert.show();
-                alert.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                Button okButton = (Button) alert.findViewById(android.R.id.button1);
-                okButton.setBackgroundResource(R.drawable.custom_button);
-                okButton.setTextColor(Color.parseColor("#FFFFFFFF"));
-                okButton.setTextSize(19);
+                MyDialog dialog = new MyDialog(this);
+                dialog.show();
             }
+
+//            String tomatoColor = "#a34b1b";
+//            CustomColorDialogBuilder customColorDialogBuilder = new CustomColorDialogBuilder(this)
+//                    .setTitleColor(tomatoColor)
+//                    .setDividerColor(tomatoColor)
+//                    .setCustomView(R.layout.checkbox, this);
+//
+//            LayoutInflater adbInflater = LayoutInflater.from(this);
+//            View eulaLayout = adbInflater.inflate(R.layout.checkbox, null);
+//            dontShowAgain = (CheckBox) eulaLayout.findViewById(R.id.skip);
+//            dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    String checkBoxResult = "NOT checked";
+//                    if (isChecked) {
+//                        checkBoxResult = "checked";
+//                    }
+//                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+//                    SharedPreferences.Editor editor = settings.edit();
+//                    editor.putString("skipMessage", checkBoxResult);
+//                    Log.v(TAG, "result=" + checkBoxResult);
+//                    editor.apply();
+//                }
+//            });
+//            customColorDialogBuilder.setTitle("Attention");
+//            customColorDialogBuilder.setMessage(Html.fromHtml("Tap the number at the top to switch it's sign from negative to positive or vice versa."));
+//            customColorDialogBuilder.setPositiveButton("OK", null);
+//
+//            AlertDialog alert = customColorDialogBuilder.create();
+//            alert.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//            alert.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog);
+//
+//            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+//            String skipMessage = settings.getString("skipMessage", "NOT checked");
+//            if (!skipMessage.equals("checked")) {
+//                alert.show();
+//                alert.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                Button okButton = (Button) alert.findViewById(android.R.id.button1);
+//                okButton.setBackgroundResource(R.drawable.custom_button);
+//                okButton.setTextColor(Color.parseColor("#FFFFFFFF"));
+//                okButton.setTextSize(19);
+//            }
         }
 
         prefs.edit().putBoolean("isFirstRun", false).apply();
